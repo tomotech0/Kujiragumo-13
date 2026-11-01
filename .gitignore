@@ -1,0 +1,54 @@
+# ============================================================
+# {{プロジェクト名}} .gitignore
+# 方針：{{共有するもの}}のみ。DB本体・収集データ・秘密情報はコミットしない
+# ============================================================
+
+# --- 個人の検討中資料（承認前。承認後に docs/ へコピーして反映する） ---
+private/
+
+# --- 秘密情報（APIキー・接続情報） ---
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# --- テスト・静的解析 ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- ログ ---
+*.log
+logs/
+
+# --- Claude Code の個人設定（共有する settings.json は対象外） ---
+.claude/settings.local.json
+CLAUDE.local.md
+
+# --- エディタ・OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+
+# --- プロジェクト固有（DB本体・収集データ・モデル等。必要に応じて足す） ---
+# *.db
+# data/
