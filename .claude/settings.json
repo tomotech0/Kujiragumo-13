@@ -11,8 +11,6 @@
       "Bash(git checkout:*)",
       "Bash(git switch:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
       "Bash(gh auth status:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
@@ -25,17 +23,17 @@
       "Bash(gh pr create:*)",
       "Bash(gh pr comment:*)"
     ],
-    "ask": [
-      "Bash(gh pr merge:*)",
-      "Bash(gh issue close:*)",
-      "Bash(gh pr close:*)"
-    ],
+    "ask": ["Bash(gh issue close:*)"],
     "deny": [
       "Bash(git push origin main:*)",
       "Bash(git push -f:*)",
       "Bash(git push --force:*)",
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)"
     ]
   }
 }
