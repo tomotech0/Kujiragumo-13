@@ -82,10 +82,11 @@ def get_share(share_id: str):
     if not exists:
         raise HTTPException(status_code=404, detail="この共有リストは見つかりません")
 
-    # ② 候補（share_items）と商品（products）を product_id でつなぎ、商品名・価格・評価を取る
+    # ② 候補（share_items）と商品（products）を product_id でつなぎ、商品名・価格・評価・ショップ名・カテゴリーを取る
+    #    （ショップ名とカテゴリーは、画面のショップ名の行とサムネイルに使う。デザインの Issue）
     with db_errors_as_500():
         rows = fetch_all(
-            """SELECT si.position, p.product_id, p.product_name, p.price, p.rating
+            """SELECT si.position, p.product_id, p.product_name, p.price, p.rating, p.brand, p.category
                FROM share_items AS si
                JOIN products AS p ON p.product_id = si.product_id
                WHERE si.share_id = %s
@@ -100,6 +101,8 @@ def get_share(share_id: str):
             "price": r["price"],
             "rating": float(r["rating"]) if r["rating"] is not None else 0,
             "position": r["position"],
+            "brand": r["brand"],
+            "category": r["category"],
         }
         for r in rows
     ]

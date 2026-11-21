@@ -16,6 +16,9 @@ import {
   type AnswerBody,
 } from "@/lib/colleague";
 import { REASONS, type ReasonKey } from "@/lib/reasons";
+import ProductImage from "../../ProductImage"; // 【デザイン】サムネイル
+import Loading from "../../Loading";           // 【デザイン】読み込み中のくるくる
+import { CheckIcon } from "../../Steps";        // 賛成している候補に付けるチェックの印
 
 // 仕様.md「エラー時の挙動」の文言
 const NOT_FOUND_MESSAGE = "この共有リストは見つかりません";
@@ -27,28 +30,7 @@ const EMPTY_MESSAGE = "賛成を1つ以上押すか、ひとことを書いて�
 type Draft = { reason: ReasonKey | ""; body: string };
 const EMPTY_DRAFT: Draft = { reason: "", body: "" };
 
-// 賛成ボタンの見た目（globals.css は配布のものなので触らず、この画面の中だけで決める）
-// 幅は固定（チェックの有無で横の入力欄の位置が動かないように）
-// 賛成している候補：緑＋チェック／賛成していない候補：ふつうのボタン（賛成はいくつでも押せるので、グレーにしない）
-const VOTE_GREEN = "#2f855a";
-const VOTE_BASE_STYLE: React.CSSProperties = {
-  flex: "0 0 104px", width: 104,
-  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-  cursor: "pointer",
-};
-const VOTED_STYLE: React.CSSProperties = {
-  ...VOTE_BASE_STYLE, background: VOTE_GREEN, color: "#fff", borderColor: VOTE_GREEN, fontWeight: 700,
-};
-
-// 賛成している候補に付けるチェックの印（文字の「☑」ではなく線で描く）
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" strokeWidth="2.2"
-        strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+// 賛成ボタンの見た目は globals.css の .vote-button（デザインの Issue で、緑から紺に）
 
 // 文字数を数える（絵文字なども1文字と数える。API 側の Python の数え方に合わせる）
 const countChars = (s: string) => [...s].length;
@@ -94,19 +76,18 @@ export default function ColleaguePage({ params }: { params: Promise<{ shareId: s
   }
 
   // 候補を読めなかったとき／読み込み中
+  // ヘッダーは layout.tsx が出す
   if (loadError) {
     return (
-      <main className="page">
-        <header className="header"><h1>Giftia</h1></header>
-        <p className="summary" role="alert">{loadError}</p>
+      <main className="page narrow">
+        <p className="error-text" role="alert">{loadError}</p>
       </main>
     );
   }
   if (!items) {
     return (
-      <main className="page">
-        <header className="header"><h1>Giftia</h1></header>
-        <p className="summary">読み込み中…</p>
+      <main className="page narrow">
+        <Loading text="読み込み中…" fullPage />
       </main>
     );
   }
@@ -160,36 +141,48 @@ export default function ColleaguePage({ params }: { params: Promise<{ shareId: s
     }
   }
 
-  // ④ 画面
+  // ④ 画面（【デザイン】サムネイル・ショップ名の行・紺の賛成ボタン。デザインの Issue）
   return (
-    <main className="page">
-      <header className="header"><h1>Giftia</h1></header>
-      <h2 style={{ fontSize: 18, margin: "8px 0 4px" }}>ギフト候補</h2>
-      <p className="summary">
-        いいと思ったギフト候補に賛成ボタンを押してください（いくつでも押せます）。賛成した候補には、いいと思った理由を選んでください。（匿名での回答となります）
-      </p>
+    <main className="page narrow">
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <h1 className="title">ギフト候補</h1>
+        <p className="lead">
+          いいと思ったギフト候補に賛成ボタンを押してください（いくつでも押せます）。賛成した候補には、いいと思った理由を選んでください。
+        </p>
+        <span className="anon">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+          匿名での回答となります（名前は入れません）
+        </span>
+      </div>
 
       <form onSubmit={onSend}>
         {/* 送信中と送ったあとは、まとめて押せなくする */}
-        <fieldset disabled={sending || sent} style={{ border: "none", padding: 0, margin: 0 }}>
-          <div className="grid">
-            {items.map((item) => {
-              const draft = draftOf(item.id);
-              const voted = votes.includes(item.id);
-              const length = countChars(draft.body);
-              return (
-                <div className="card" key={item.id}>
-                  <h3 className="name">{item.name}</h3>
-                  <p className="price">{item.price.toLocaleString()}円</p>
-                  <p className="meta">評価{item.rating}</p>
+        <fieldset disabled={sending || sent} style={{ border: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 20 }}>
+          {items.map((item) => {
+            const draft = draftOf(item.id);
+            const voted = votes.includes(item.id);
+            const length = countChars(draft.body);
+            return (
+              <article className={`card answer-card${voted ? " voted" : ""}`} key={item.id}>
+                <ProductImage category={item.category} sizes="(max-width: 640px) 100vw, 220px" />
+                <div className="card-body">
+                  <p className="brand">{item.brand}</p>
+                  <h2 className="name">{item.name}</h2>
+                  <div className="price-row" style={{ justifyContent: "flex-start", gap: 16 }}>
+                    <p className="price">{item.price.toLocaleString()}<small>円</small></p>
+                    <p className="meta"><span className="star" aria-hidden="true">★</span> {item.rating}</p>
+                  </div>
 
-                  <div className="form">
+                  <div className="form answer-row">
                     {/* 賛成はいくつでも。押すと付き、もう一度押すと外れる */}
                     <button
                       type="button"
+                      className="vote-button"
                       aria-pressed={voted}
                       onClick={() => toggleVote(item.id)}
-                      style={voted ? VOTED_STYLE : VOTE_BASE_STYLE}
                     >
                       {voted && <CheckIcon />}
                       賛成
@@ -211,41 +204,47 @@ export default function ColleaguePage({ params }: { params: Promise<{ shareId: s
 
                     {/* ひとこと（任意・200文字まで） */}
                     <input
-                      className="q"
+                      className="answer-body"
                       value={draft.body}
                       onChange={(e) => updateDraft(item.id, { body: e.target.value })}
                       placeholder={`ひとこと（任意・${BODY_MAX}文字以内）`}
+                      aria-label="ひとこと"
                     />
                   </div>
                   {length > BODY_MAX && (
                     <p className="meta">ひとことは{BODY_MAX}文字までです（いま{length}文字）</p>
                   )}
                 </div>
-              );
-            })}
-          </div>
+              </article>
+            );
+          })}
 
           {/* role="alert"：エラーが出たことを、読み上げソフトにも伝える */}
-          {error && <p className="summary" role="alert">{error}</p>}
+          {error && <p className="error-text" role="alert">{error}</p>}
 
-          {/* 送信ボタンは中央に置き、少し幅を広くして目に入りやすくする（globals.css は触らず、この画面の中だけで決める） */}
-          <div className="form" style={{ justifyContent: "center" }}>
-            {/* 押せないとき（送信中・送信済み・ひとことが長すぎる）は、薄くして見た目でもわかるようにする */}
-            <button
-              type="submit"
-              disabled={tooLong}
-              style={{
-                minWidth: 200,
-                ...(tooLong || sending || sent ? { opacity: 0.45, cursor: "not-allowed" } : {}),
-              }}
-            >
-              {sending ? "送信中…" : "送信する"}
-            </button>
+          {/* 送信ボタンは中央に置き、幅を広くして目に入りやすくする
+              送ったあとはボタンを消し、同じ場所に「送信完了しました。ご回答ありがとうございました。」を出す */}
+          <div className="center">
+            {sent ? (
+              <div className="done-message" role="status">
+                <span className="done-icon" aria-hidden="true"><CheckIcon /></span>
+                <p>送信完了しました。<br />ご回答ありがとうございました。</p>
+              </div>
+            ) : (
+              // 押せないとき（ひとことが長すぎる）は薄くする。送信中はくるくるを出す
+              <button
+                type="submit"
+                className={`btn btn-primary btn-large${sending ? " is-busy" : ""}`}
+                disabled={tooLong}
+                aria-disabled={tooLong || sending}
+              >
+                {sending && <span className="spinner" aria-hidden="true" />}
+                {sending ? "送信中…" : "送信する"}
+              </button>
+            )}
           </div>
         </fieldset>
       </form>
-
-      {sent && <p className="summary">ご回答ありがとうございました。</p>}
     </main>
   );
 }

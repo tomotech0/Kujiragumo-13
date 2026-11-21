@@ -1,20 +1,191 @@
-/* app/globals.css — Giftia 検索画面の見た目（配布。穴埋めの対象ではない） */
-:root { --ink:#1f2933; --sub:#616e7c; --line:#e4e7eb; --accent:#1b3a5c; --bg:#fafaf9; }
+/* app/globals.css — Giftia の見た目（全部の画面で共通）
+   もとは配布の検索画面の見た目。デザインの Issue で、色・文字・部品をギフトサイト向けに整えた。
+   色はここの :root にだけ書く（紺はそのまま。背景をあたたかい白に。金は飾りだけ） */
+:root {
+  --ink: #1f2933;          /* 文字 */
+  --sub: #5b6673;          /* 補足の文字 */
+  --line: #e7e1d6;         /* 線 */
+  --field: #d9d2c5;        /* 入力欄の線 */
+  --accent: #1b3a5c;       /* 紺（メイン。ボタン・ロゴ） */
+  --accent-soft: #e8eef5;  /* うすい紺（選んだもの・選ばれた理由） */
+  --gold: #b8925a;         /* 金（線・飾りだけ） */
+  --gold-soft: #f1e6cf;    /* うすい金（バッジ） */
+  --bg: #f7f4ee;           /* 背景（あたたかい白） */
+  --card: #ffffff;         /* カード */
+  --thumb-bg: #efe9de;     /* 画像の枠の地 */
+}
 * { box-sizing: border-box; }
-body { margin:0; font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; color:var(--ink); background:var(--bg); }
-.page { max-width:960px; margin:0 auto; padding:16px; }
-.header h1 { font-size:24px; color:var(--accent); margin:8px 0; }
-.modes { display:flex; gap:8px; margin-top:4px; }
-.modes button { font-size:14px; padding:6px 12px; border:1px solid var(--line); background:#fff; border-radius:999px; cursor:pointer; }
-.modes button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
-.summary { color:var(--sub); font-size:14px; }
-.form { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; align-items:center; }
-.form .q { flex:1 1 240px; }
-.form input, .form select, .form button { font-size:15px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:#fff; }
-.form .chk { display:flex; align-items:center; gap:4px; font-size:14px; }
-.form button[type="submit"] { background:var(--accent); color:#fff; border:none; min-width:88px; cursor:pointer; }
-.grid { display:grid; gap:12px; }
-.card { border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; }
-.card .name { font-size:16px; margin:4px 0; }
-.card .price { font-size:18px; font-weight:700; margin:4px 0; }
-.card .meta { color:var(--sub); font-size:13px; margin:2px 0; }
+body {
+  margin: 0;
+  font-family: var(--font-sans), "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+button, input, select { font-family: inherit; }
+
+/* ===== ヘッダー（SiteHeader.tsx） ===== */
+.site-header { background: #fff; border-bottom: 1px solid var(--line); }
+.site-header-inner { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-serif), serif; font-weight: 700; font-size: 26px; letter-spacing: 0.04em; color: var(--accent); text-decoration: none; }
+.tagline { font-size: 13px; color: var(--sub); }
+/* トップで「みんなで選ぶ」を押す前（page.tsx の .search-only）は、右上の「みんなで選ぶ」を出さない */
+body:has(.search-only) .tagline { display: none; }
+
+/* ===== ページの枠 ===== */
+.page { max-width: 1120px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 22px; }
+.page.narrow { max-width: 960px; }
+.page.with-bar { padding-bottom: 120px; }  /* ② 下のバーの分あける */
+.title { margin: 0; font-family: var(--font-serif), serif; font-size: 28px; color: var(--accent); line-height: 1.4; }
+.lead { margin: 0; font-size: 15px; line-height: 1.8; }
+.summary { margin: 0; color: var(--sub); font-size: 14px; line-height: 1.7; }
+.error-text { margin: 0; color: #9b2c2c; font-size: 14px; }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* ===== ステップ（Steps.tsx） ===== */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; }
+.step { display: flex; align-items: center; gap: 8px; color: var(--sub); }
+.step + .step::before { content: ""; width: 32px; height: 1px; background: #cfc6b6; margin-right: 2px; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #cfc6b6; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.step-now { color: var(--accent); font-weight: 700; }
+.step-now .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step-done .step-num { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent); }
+
+/* ===== ボタン ===== */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 22px; border-radius: 999px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; border: 1.5px solid var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; font-weight: 700; }
+.btn-outline { background: #fff; color: var(--accent); }
+.btn-picked { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.btn-large { min-height: 56px; min-width: 320px; font-size: 17px; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+.link-button { background: none; border: none; padding: 8px 4px; font-size: 14px; color: var(--sub); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chevron { transition: transform 0.15s; }
+.link-button[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+
+/* ===== 入力（② の検索・④ の回答） ===== */
+/* ② トップの「みんなで選ぶ」の入口 */
+.together-invite { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding: 20px 24px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--gold); }
+.together-invite > div { display: flex; flex-direction: column; gap: 6px; flex: 1 1 320px; }
+.invite-title { margin: 0; font-family: var(--font-serif), serif; font-size: 20px; color: var(--accent); line-height: 1.5; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.modes { display: flex; gap: 8px; flex-wrap: wrap; }
+.modes button { font-size: 14px; height: 36px; padding: 0 18px; border: 1px solid var(--line); background: #fff; border-radius: 999px; cursor: pointer; color: var(--ink); }
+.modes button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.form .q { flex: 1 1 240px; }
+.form input, .form select { font-size: 15px; height: 48px; padding: 0 12px; border: 1px solid var(--field); border-radius: 10px; background: #fff; color: var(--ink); }
+.form select:disabled { background: #f4f1eb; color: #6b7480; border-color: var(--line); }
+.form .chk { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.form button[type="submit"].search-button { height: 48px; padding: 0 32px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+/* ===== 商品カード ===== */
+.grid { display: grid; gap: 16px; }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+.card .meta, .meta { color: var(--sub); font-size: 13px; margin: 0; }
+.card .brand, .brand { color: var(--sub); font-size: 12px; margin: 0; }
+.card .name, .name { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.5; }
+.price { margin: 0; font-size: 20px; font-weight: 700; }
+.price small { font-size: 13px; font-weight: 500; }
+.price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.star { color: var(--gold); }
+
+/* サムネイル（ProductImage.tsx）。正方形の枠に、切らずに収める */
+.thumb { position: relative; width: 100%; aspect-ratio: 1 / 1; background: var(--thumb-bg); overflow: hidden; }
+.thumb img { object-fit: cover; }
+.thumb-empty { display: block; width: 100%; height: 100%; }
+.thumb-chip { position: absolute; left: 10px; top: 10px; height: 24px; padding: 0 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.92); font-size: 12px; display: inline-flex; align-items: center; z-index: 1; }
+.thumb-small { width: 88px; flex: 0 0 auto; border-radius: 10px; }
+.thumb-mini { width: 44px; flex: 0 0 auto; border-radius: 8px; }
+
+/* ② 下のバー（選んだ候補） */
+.pick-bar { position: sticky; bottom: 0; z-index: 5; /* カードの上の札（z-index: 1）より上に出す */ background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(31, 41, 51, 0.06); padding: 14px 24px; }
+.pick-bar-inner { max-width: 1072px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.pick-bar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pick-count { font-size: 15px; font-weight: 700; color: var(--accent); }
+.pick-slot { width: 44px; height: 44px; border-radius: 8px; border: 1.5px dashed #cfc6b6; }
+
+/* ③ 共有URL */
+.share-url { flex: 1 1 320px; background: #faf8f4; }
+.message-box { background: #faf8f4; border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; font-size: 14px; line-height: 1.9; white-space: pre-wrap; word-break: break-all; margin: 0; }
+.field-label { font-size: 15px; font-weight: 700; margin: 0; }
+
+/* ④ 回答のカード（パソコンは左に画像、スマホは上に画像） */
+.answer-card { display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+.answer-card.voted { border: 2px solid var(--accent); }
+.answer-card .thumb { height: 100%; aspect-ratio: auto; min-height: 220px; }
+.answer-card .card-body { padding: 20px 24px; gap: 10px; }
+.answer-card .name { font-size: 18px; font-weight: 700; }
+.vote-button { flex: 0 0 112px; width: 112px; height: 48px; border-radius: 10px; border: 1.5px solid #cfd6de; background: #fff; color: var(--ink); font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.vote-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.answer-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.answer-row select { flex: 1 1 260px; min-width: 0; }
+.answer-body { width: 100%; }
+.center { display: flex; justify-content: center; }
+
+/* 待っている間のくるくる（ボタンの中に出す。色はボタンの文字の色） */
+.spinner { width: 18px; height: 18px; flex: 0 0 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-large { width: 40px; height: 40px; flex-basis: 40px; border-width: 3px; }
+/* 画面の中央に出す「検索中…」「読み込み中…」（Loading.tsx） */
+.loading { min-height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--accent); }
+.loading p { margin: 0; font-size: 15px; color: var(--sub); }
+.loading-full { min-height: calc(100vh - 170px); }  /* ヘッダーと上下の余白を引いた高さ。画面のほぼ真ん中に来る */
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+/* くるくるの間は、薄くしない（押せないのは同じ） */
+.btn.is-busy:disabled, .btn.is-busy[aria-disabled="true"] { opacity: 1; cursor: progress; }
+
+/* ④ 送ったあとの表示（送信ボタンのかわりに中央に出す） */
+.done-message { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; border-radius: 16px; background: var(--accent-soft); color: var(--accent); text-align: center; }
+.done-message p { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.7; }
+.done-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+.anon { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--sub); }
+
+/* ⑤ 1位のカード */
+.top-card { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 40px 48px 44px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+.ribbon { position: absolute; z-index: 2; top: 50px; right: -78px; width: 300px; height: 38px; transform: rotate(45deg); box-shadow: 0 4px 10px rgba(31, 41, 51, 0.22);
+  background: linear-gradient(90deg, #8a6533 0%, #c39a55 16%, #ecd08a 34%, #fff3c4 48%, #f6dc95 58%, #c9a25e 78%, #8a6533 100%); }
+.top-image { position: relative; width: 500px; max-width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(31, 41, 51, 0.12); }
+.top-image .thumb img { object-fit: contain; }
+.top-badge { position: absolute; top: 16px; left: 16px; z-index: 1; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 999px; background: var(--gold-soft); color: var(--accent); font-size: 14px; font-weight: 700; box-shadow: 0 2px 8px rgba(31, 41, 51, 0.2); }
+.top-name { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.5; }
+.top-price { font-size: 26px; font-weight: 700; }
+.reason-box { width: 100%; max-width: 800px; background: var(--accent-soft); border-radius: 12px; padding: 14px 20px; display: flex; flex-direction: column; gap: 4px; align-items: center; color: var(--accent); }
+.reason-box strong { font-size: 13px; }
+.reason-box span { font-size: 15px; line-height: 1.7; }
+.voices { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 10px; align-items: center; list-style: none; margin: 0; padding: 0; }
+.voice { background: #faf8f4; border: 1px solid #ece6db; border-radius: 14px; padding: 10px 18px; font-size: 14px; line-height: 1.7; }
+.more { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+/* 1位のカードの中の「その他の候補を見る」（カードは中央揃えなので、開いた候補は左揃えに戻す） */
+.more-in-card { width: 100%; }
+.more-in-card .other-list { text-align: left; }
+.other-list { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.other-card { display: flex; gap: 18px; align-items: center; padding: 16px; }
+.other-card .info { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.help-text { margin: 0; max-width: 640px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; font-size: 14px; line-height: 1.8; }
+.bought { font-size: 13px; color: var(--sub); }
+
+/* ===== スマホ ===== */
+@media (max-width: 960px) {
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .page { padding: 18px 16px 48px; }
+  .site-header-inner { padding: 12px 16px; }
+  .title { font-size: 24px; }
+  .grid-3 { grid-template-columns: minmax(0, 1fr); }
+  .answer-card { grid-template-columns: minmax(0, 1fr); }
+  .answer-card .thumb { aspect-ratio: 16 / 9; min-height: 0; height: auto; }
+  .answer-card .card-body { padding: 16px; }
+  .answer-row .vote-button, .answer-row select { flex: 1 1 100%; width: 100%; }
+  .steps { font-size: 12px; gap: 10px; }
+  .step { gap: 5px; }
+  .step-num { width: 22px; height: 22px; font-size: 12px; }
+  .step + .step::before { display: none; }
+  .btn-large { min-width: 0; width: 100%; }
+  .top-card { padding: 28px 16px 32px; }
+  /* スマホはリボンを小さく、角に寄せる（左上のバッジの文字にかぶらないように） */
+  .ribbon { top: 26px; right: -50px; width: 180px; height: 24px; }
+  .other-card { flex-wrap: wrap; }
+}

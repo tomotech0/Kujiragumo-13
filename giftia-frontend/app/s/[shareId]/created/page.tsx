@@ -8,6 +8,9 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ApiError, fetchShare, type ShareItem } from "@/lib/colleague";
+import ProductImage from "../../../ProductImage"; // 【デザイン】サムネイル
+import Loading from "../../../Loading";           // 【デザイン】読み込み中のくるくる
+import Steps from "../../../Steps";               // 【デザイン】3つのステップ
 
 // 仕様.md「エラー時の挙動」の文言（④ と同じ）
 const NOT_FOUND_MESSAGE = "この共有リストは見つかりません";
@@ -37,20 +40,18 @@ export default function CreatedPage({ params }: { params: Promise<{ shareId: str
     return () => { cancelled = true; };
   }, [shareId]);
 
-  // 候補を読めなかったとき／読み込み中
+  // 候補を読めなかったとき／読み込み中（ヘッダーは layout.tsx が出す）
   if (loadError) {
     return (
-      <main className="page">
-        <header className="header"><h1>Giftia</h1></header>
-        <p className="summary" role="alert">{loadError}</p>
+      <main className="page narrow">
+        <p className="error-text" role="alert">{loadError}</p>
       </main>
     );
   }
   if (!items) {
     return (
-      <main className="page">
-        <header className="header"><h1>Giftia</h1></header>
-        <p className="summary">読み込み中…</p>
+      <main className="page narrow">
+        <Loading text="読み込み中…" fullPage />
       </main>
     );
   }
@@ -70,51 +71,62 @@ export default function CreatedPage({ params }: { params: Promise<{ shareId: str
     }
   }
 
-  // ④ 画面
+  // ④ 画面（【デザイン】ステップ・サムネイル・ショップ名の行・URL とコピーの枠。デザインの Issue）
   return (
-    <main className="page">
-      <header className="header"><h1>Giftia</h1></header>
-      <h2>共有リストができました</h2>
+    <main className="page narrow">
+      <Steps current={2} />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <h1 className="title">共有リストができました</h1>
+        <p className="summary">下の URL を、一緒に贈る人に送ってください。回答は匿名で集まります。</p>
+      </div>
 
       {/* 選んだ候補（入れた順） */}
-      <section>
-        <p className="summary">選んだ候補（{items.length}つ）</p>
-        <div className="grid">
+      <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <h2 className="field-label">選んだ候補（{items.length}つ）</h2>
+        <div className="grid grid-3">
           {items.map((item) => (
             <div className="card" key={item.id}>
-              <p className="meta">候補{item.position}</p>
-              <h3 className="name">{item.name}</h3>
-              <p className="price">{item.price.toLocaleString()}円</p>
-              <p className="meta">評価{item.rating}</p>
+              <ProductImage category={item.category} sizes="(max-width: 640px) 100vw, 300px" />
+              <div className="card-body">
+                <p className="brand">候補{item.position}・{item.brand}</p>
+                <h3 className="name">{item.name}</h3>
+                <div className="price-row">
+                  <p className="price">{item.price.toLocaleString()}<small>円</small></p>
+                  <p className="meta"><span className="star" aria-hidden="true">★</span> {item.rating}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 共有URL とコピー */}
-      <section>
-        <p className="summary">この URL を、一緒に贈る人に送ってください</p>
-        <div className="form">
-          <input className="q" value={shareUrl} readOnly onFocus={(e) => e.target.select()} aria-label="共有URL" />
-          <button type="button" onClick={onCopy}>コピー</button>
-          {copyNote && <span className="summary">{copyNote}</span>}
+      <section className="panel">
+        {/* 共有URL とコピー */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label htmlFor="share-url" className="field-label">共有URL</label>
+          <div className="form">
+            <input id="share-url" className="share-url" value={shareUrl} readOnly onFocus={(e) => e.target.select()} />
+            <button type="button" className="btn btn-primary" onClick={onCopy} style={{ borderRadius: 10 }}>コピー</button>
+          </div>
+          {copyNote && <p className="summary" role="status">{copyNote}</p>}
         </div>
-      </section>
 
-      {/* 同僚に送る文の例 */}
-      <section>
-        <p className="summary">送る文の例</p>
-        <div className="card" style={{ whiteSpace: "pre-wrap" }}>
-          {MESSAGE_EXAMPLE}
-          {"\n"}
-          {shareUrl}
+        {/* 同僚に送る文の例 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <p className="field-label">送る文の例</p>
+          <p className="message-box">
+            {MESSAGE_EXAMPLE}
+            {"\n"}
+            {shareUrl}
+          </p>
         </div>
       </section>
 
       {/* ⑤ へ */}
-      <p className="form">
-        <Link href={`/s/${encodeURIComponent(shareId)}/summary`}>集まった声を見る</Link>
-      </p>
+      <div className="center">
+        <Link href={`/s/${encodeURIComponent(shareId)}/summary`} className="btn btn-outline btn-large">集まった声を見る</Link>
+      </div>
     </main>
   );
 }

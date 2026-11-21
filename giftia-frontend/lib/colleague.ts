@@ -10,6 +10,8 @@ export type ShareItem = {
   price: number;    // 価格（円）
   rating: number;   // レビューの平均
   position: number; // 共有リストに入れた順（1〜3）
+  brand: string;    // ショップ名（画面のショップ名の行。デザインの Issue）
+  category: string; // カテゴリー（サムネイル画像を選ぶ）
 };
 
 // いいと思った理由の選択肢は lib/reasons.ts（ADR-0013）

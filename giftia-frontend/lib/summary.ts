@@ -8,6 +8,8 @@ export type SummaryItem = {
   id: string;
   name: string;
   price: number;
+  brand: string;      // ショップ名（画面のショップ名の行。デザインの Issue）
+  category: string;   // カテゴリー（サムネイル画像を選ぶ）
   comments: string[]; // ひとことの本文
 };
 

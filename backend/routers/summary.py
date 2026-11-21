@@ -72,9 +72,9 @@ def rank(candidates: list[dict], votes: dict[str, int], reasons: dict[str, dict[
 
 
 def _build_summary(share_id: str) -> dict:
-    # 共有リストの候補（商品名・価格・評価は products から）
+    # 共有リストの候補（商品名・価格・評価・ショップ名・カテゴリーは products から）
     item_rows = fetch_all(
-        """SELECT i.product_id, i.position, p.product_name, p.price, p.rating
+        """SELECT i.product_id, i.position, p.product_name, p.price, p.rating, p.brand, p.category
            FROM share_items i JOIN products p ON p.product_id = i.product_id
            WHERE i.share_id = %s ORDER BY i.position""",
         (share_id,),
@@ -128,6 +128,8 @@ def _build_summary(share_id: str) -> dict:
             "id": pid,
             "name": by_id[pid]["product_name"],
             "price": by_id[pid]["price"],
+            "brand": by_id[pid]["brand"],        # ショップ名（画面のショップ名の行。デザインの Issue）
+            "category": by_id[pid]["category"],  # カテゴリー（サムネイル画像を選ぶ）
             "comments": bodies.get(pid, []),
         }
         for pid in ids
